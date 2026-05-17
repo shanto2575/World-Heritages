@@ -1,0 +1,56 @@
+"use client";
+
+import { authClient } from "@/lib/auth-client";
+import { AlertDialog, Button } from "@heroui/react";
+import toast from "react-hot-toast";
+
+export function BookingCancel({ booking }) {
+
+    const handleDelete = async (id) => {
+        const { data: tokenData } = await authClient.token()
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/booking/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-type': 'application/json',
+                authorization: `Bearer ${tokenData?.token}`
+
+            }
+        })
+        const data = await res.json()
+        // console.log(data,'delete data')
+        window.location.reload()
+        if (data) {
+            toast.success('Booking Cancel Success')
+        }
+    }
+    return (
+        <AlertDialog>
+            <Button variant='danger' className={'rounded'}>Cencel</Button>
+            <AlertDialog.Backdrop>
+                <AlertDialog.Container>
+                    <AlertDialog.Dialog className="sm:max-w-[400px]">
+                        <AlertDialog.CloseTrigger />
+                        <AlertDialog.Header>
+                            <AlertDialog.Icon status="danger" />
+                            <AlertDialog.Heading>Delete {booking.siteName} permanently?</AlertDialog.Heading>
+                        </AlertDialog.Header>
+                        <AlertDialog.Body>
+                            <p>
+                                This will permanently delete <strong>{booking.siteName}</strong> and all of its
+                                data. This action cannot be undone.
+                            </p>
+                        </AlertDialog.Body>
+                        <AlertDialog.Footer>
+                            <Button slot="close" variant="tertiary">
+                                Cancel
+                            </Button>
+                            <Button onClick={() => handleDelete(booking._id)} slot="close" variant="danger">
+                                Confirm Cancel
+                            </Button>
+                        </AlertDialog.Footer>
+                    </AlertDialog.Dialog>
+                </AlertDialog.Container>
+            </AlertDialog.Backdrop>
+        </AlertDialog>
+    );
+}
